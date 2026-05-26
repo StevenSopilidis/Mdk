@@ -1,7 +1,5 @@
+#include "utils/logger.h"
+
 #include <iostream>
 
-
-int main()
-{
-    std::cout << "HAllo\n";
-}
+int main() {}
