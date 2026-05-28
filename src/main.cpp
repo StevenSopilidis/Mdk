@@ -1,5 +1,7 @@
-#include "utils/logger.h"
+#include "app/app.h"
 
-#include <iostream>
-
-int main() {}
+int main(int argc, char** argv)
+{
+    mdk::app::App app(argc, argv);
+    app.Run();
+}

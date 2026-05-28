@@ -68,20 +68,20 @@ class Logger
     Logger& operator=(const Logger&) = delete;
     Logger& operator=(Logger&&)      = delete;
 
-    static Logger& GetInstance();
+    static Logger& getInstance();
 
     template <LogLevel lvl, typename... Args>
-    void Log(const char* file, int line, std::format_string<Args...> fmt, Args&&... args)
+    void log(const char* file, int line, std::format_string<Args...> fmt, Args&&... args)
     {
-        Write<lvl>(file, line, std::format(fmt, std::forward<Args>(args)...));
+        write<lvl>(file, line, std::format(fmt, std::forward<Args>(args)...));
     }
 
   private:
-    template <LogLevel lvl> void Write(const char* file, int line, std::string_view msg)
+    template <LogLevel lvl> void write(const char* file, int line, std::string_view msg)
     {
         std::lock_guard lock(mtx_);
 
-        fprintf(stderr, "%s %s[%s]%s pid=%d %s:%d %.*s\n", IsoNow().c_str(),
+        fprintf(stderr, "%s %s[%s]%s pid=%d %s:%d %.*s\n", isoNow().c_str(),
                 get_log_level_color<lvl>().data(), get_log_level_tag<lvl>().data(), "\x1b[0m",
                 ::getpid(), std::filesystem::path(file).filename().string().c_str(), line,
                 (int)msg.size(), msg.data());
@@ -89,7 +89,7 @@ class Logger
         std::fflush(stderr);
     }
 
-    std::string IsoNow();
+    std::string isoNow();
 
     Logger() = default;
 
@@ -98,25 +98,25 @@ class Logger
 } // namespace mdk::utils
 
 #define LOG_TRACE(fmt, ...)                                                                        \
-    ::mdk::utils::Logger::GetInstance().Log<::mdk::utils::LogLevel::Trace>(__FILE__, __LINE__,     \
-                                                                           fmt, __VA_ARGS__)
+    ::mdk::utils::Logger::getInstance().log<::mdk::utils::LogLevel::Trace>(__FILE__, __LINE__,     \
+                                                                           fmt, ##__VA_ARGS__)
 
 #define LOG_DEBUG(fmt, ...)                                                                        \
-    ::mdk::utils::Logger::GetInstance().Log<::mdk::utils::LogLevel::Debug>(__FILE__, __LINE__,     \
-                                                                           fmt, __VA_ARGS__)
+    ::mdk::utils::Logger::getInstance().log<::mdk::utils::LogLevel::Debug>(__FILE__, __LINE__,     \
+                                                                           fmt, ##__VA_ARGS__)
 
 #define LOG_INFO(fmt, ...)                                                                         \
-    ::mdk::utils::Logger::GetInstance().Log<::mdk::utils::LogLevel::Info>(__FILE__, __LINE__, fmt, \
-                                                                          __VA_ARGS__)
+    ::mdk::utils::Logger::getInstance().log<::mdk::utils::LogLevel::Info>(__FILE__, __LINE__, fmt, \
+                                                                          ##__VA_ARGS__)
 #define LOG_WARN(fmt, ...)                                                                         \
-    ::mdk::utils::Logger::GetInstance().Log<::mdk::utils::LogLevel::Warn>(__FILE__, __LINE__, fmt, \
-                                                                          __VA_ARGS__)
+    ::mdk::utils::Logger::getInstance().log<::mdk::utils::LogLevel::Warn>(__FILE__, __LINE__, fmt, \
+                                                                          ##__VA_ARGS__)
 
 #define LOG_ERROR(fmt, ...)                                                                        \
-    ::mdk::utils::Logger::GetInstance().Log<::mdk::utils::LogLevel::Error>(__FILE__, __LINE__,     \
-                                                                           fmt, __VA_ARGS__)
+    ::mdk::utils::Logger::getInstance().log<::mdk::utils::LogLevel::Error>(__FILE__, __LINE__,     \
+                                                                           fmt, ##__VA_ARGS__)
 
 #define LOG_FATAL(fmt, ...)                                                                        \
-    ::mdk::utils::Logger::GetInstance().Log<::mdk::utils::LogLevel::Fatal>(__FILE__, __LINE__,     \
-                                                                           fmt, __VA_ARGS__);      \
+    ::mdk::utils::Logger::getInstance().log<::mdk::utils::LogLevel::Fatal>(__FILE__, __LINE__,     \
+                                                                           fmt, ##__VA_ARGS__);    \
     exit(-1);
