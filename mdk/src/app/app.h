@@ -1,5 +1,6 @@
 #pragma once
 
+#include "core/container_manager.h"
 #include "utils/arg_parser.h"
 #include "utils/logger.h"
 
@@ -16,8 +17,10 @@ class App
 
   private:
     void handle_help();
+    void handle_run_raw();
 
-    Logger&   logger_;
-    ArgParser arg_parser_;
+    core::ContainerManager container_manager_;
+    Logger&                logger_;
+    ArgParser              arg_parser_;
 };
 } // namespace mdk::app

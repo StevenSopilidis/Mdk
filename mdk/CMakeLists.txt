@@ -5,8 +5,8 @@ set(PROJECT_SOURCE_FILES
     src/utils/logger.cpp
     src/utils/arg_parser.cpp
     src/app/app.cpp
-    src/app/container.cpp
-    src/app/container_manager.cpp
+    src/core/container.cpp
+    src/core/container_manager.cpp
 )
 
 # Create library

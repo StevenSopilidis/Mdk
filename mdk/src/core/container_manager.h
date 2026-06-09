@@ -15,7 +15,7 @@ class ContainerManager
     ContainerManager() = default;
     ~ContainerManager();
 
-    bool create_container(std::string_view rootfs, std::string& command);
+    bool create_container(std::string_view rootfs, const std::string& command);
     void launch_reap_thread();
     void stop();
 

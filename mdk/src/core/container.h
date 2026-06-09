@@ -34,7 +34,7 @@ class Container
   public:
     ~Container();
 
-    static Container* Create(std::filesystem::path rootfs, std::string& command);
+    static Container* Create(std::filesystem::path rootfs, const std::string& command);
 
     void mark_exited();
 

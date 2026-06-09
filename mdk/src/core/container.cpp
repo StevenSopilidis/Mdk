@@ -12,7 +12,7 @@ namespace mdk::core
 
 Container::~Container() { delete[] stack_; }
 
-Container* Container::Create(std::filesystem::path rootfs, std::string& command)
+Container* Container::Create(std::filesystem::path rootfs, const std::string& command)
 {
     static uint64_t id_counter = 0;
 

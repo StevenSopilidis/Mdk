@@ -25,7 +25,7 @@ ContainerManager::~ContainerManager()
     }
 }
 
-bool ContainerManager::create_container(std::string_view rootfs, std::string& command)
+bool ContainerManager::create_container(std::string_view rootfs, const std::string& command)
 {
     auto* container = Container::Create(rootfs, command);
 
