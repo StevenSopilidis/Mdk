@@ -7,7 +7,7 @@
 namespace mdk::utils
 {
 
-std::string Logger::isoNow()
+std::string Logger::IsoNow()
 {
     auto        now        = std::chrono::system_clock::now();
     std::time_t now_time_t = std::chrono::system_clock::to_time_t(now);
@@ -19,7 +19,7 @@ std::string Logger::isoNow()
     return oss.str();
 }
 
-Logger& Logger::getInstance()
+Logger& Logger::GetInstance()
 {
     static Logger logger;
 

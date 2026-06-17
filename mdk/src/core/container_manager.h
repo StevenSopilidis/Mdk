@@ -15,9 +15,9 @@ class ContainerManager
     ContainerManager() = default;
     ~ContainerManager();
 
-    bool create_container(std::string_view rootfs, const std::string& command);
-    void launch_reap_thread();
-    void stop();
+    bool CreateContainer(std::string_view rootfs, const std::string& command);
+    void LaunchReapThread();
+    void Stop();
 
   private:
     std::shared_mutex                     mtx_;

@@ -2,9 +2,9 @@
 
 namespace mdk::utils
 {
-ArgParser::ArgParser(int argc, char** argv) { tokenize(argc, argv); }
+ArgParser::ArgParser(int argc, char** argv) { Tokenize(argc, argv); }
 
-void ArgParser::tokenize(int argc, char** argv)
+void ArgParser::Tokenize(int argc, char** argv)
 {
     auto seen_subcmd{false};
 
@@ -32,7 +32,7 @@ void ArgParser::tokenize(int argc, char** argv)
     }
 }
 
-std::optional<Token> ArgParser::peek(std::size_t offset) const
+std::optional<Token> ArgParser::Peek(std::size_t offset) const
 {
     if (current_ + offset >= tokens_.size())
     {
@@ -42,7 +42,7 @@ std::optional<Token> ArgParser::peek(std::size_t offset) const
     return tokens_.at(current_ + offset);
 }
 
-std::optional<Token> ArgParser::next()
+std::optional<Token> ArgParser::Next()
 {
     if (current_ == tokens_.size())
     {
@@ -52,7 +52,7 @@ std::optional<Token> ArgParser::next()
     return tokens_[current_++];
 }
 
-std::optional<Token> ArgParser::expect(TokenType type)
+std::optional<Token> ArgParser::Expect(TokenType type)
 {
     if (current_ == tokens_.size() || tokens_[current_].type != type)
     {
@@ -62,7 +62,7 @@ std::optional<Token> ArgParser::expect(TokenType type)
     return tokens_[current_++];
 }
 
-bool ArgParser::match(TokenType type)
+bool ArgParser::Match(TokenType type)
 {
     if (current_ == tokens_.size())
     {

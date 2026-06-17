@@ -25,7 +25,7 @@ ContainerManager::~ContainerManager()
     }
 }
 
-bool ContainerManager::create_container(std::string_view rootfs, const std::string& command)
+bool ContainerManager::CreateContainer(std::string_view rootfs, const std::string& command)
 {
     auto* container = Container::Create(rootfs, command);
 
@@ -42,9 +42,9 @@ bool ContainerManager::create_container(std::string_view rootfs, const std::stri
     return true;
 }
 
-void ContainerManager::stop() { running_.store(false, std::memory_order_release); }
+void ContainerManager::Stop() { running_.store(false, std::memory_order_release); }
 
-void ContainerManager::launch_reap_thread()
+void ContainerManager::LaunchReapThread()
 {
     reaper_thread_ = std::thread(
         [this]()

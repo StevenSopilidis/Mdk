@@ -33,11 +33,11 @@ Container* Container::Create(std::filesystem::path rootfs, const std::string& co
     void* stack_top = container->stack_ + STACK_SIZE;
     stack_top       = (void*)((uintptr_t)stack_top & ~0xF); // make sure its 16-byte aligned
 
-    pid_t pid = clone(child_func, stack_top, flags, &container->state_);
+    pid_t pid = clone(ChildFunc, stack_top, flags, &container->state_);
 
     if (pid == -1)
     {
-        LOG_ERROR("clone failed");
+        LOG_ERROR("clone failed with errorno: {}", errno);
         container->state_.process_state = ContainerProcessState::Dead;
         delete[] container->stack_;
         delete container;
@@ -50,7 +50,7 @@ Container* Container::Create(std::filesystem::path rootfs, const std::string& co
     return container;
 }
 
-int Container::child_func(void* arg)
+int Container::ChildFunc(void* arg)
 {
     auto* state = static_cast<ContainerState*>(arg);
 

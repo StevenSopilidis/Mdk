@@ -44,7 +44,7 @@ class Container
   private:
     Container() = default;
 
-    static int child_func(void* arg);
+    static int ChildFunc(void* arg);
 
     ContainerState state_;
     char*          stack_;

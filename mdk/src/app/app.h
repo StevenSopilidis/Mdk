@@ -14,11 +14,14 @@ class App
   public:
     App(int argc, char** argv);
     void Run();
+    void Stop();
 
   private:
-    void handle_help();
-    void handle_run_raw();
+    void HandleHelp();
+    void HandleRunRaw();
 
+    std::atomic<bool>      running_;
+    std::thread            main_loop_thread_;
     core::ContainerManager container_manager_;
     Logger&                logger_;
     ArgParser              arg_parser_;
