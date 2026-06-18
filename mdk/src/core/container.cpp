@@ -3,6 +3,11 @@
 #include "utils/logger.h"
 
 #include <csignal>
+#include <cstring>
+#include <sys/mount.h>
+#include <sys/stat.h>
+#include <sys/syscall.h>
+#include <sys/sysmacros.h>
 #include <sys/wait.h>
 
 namespace mdk::core
@@ -54,17 +59,103 @@ int Container::ChildFunc(void* arg)
 {
     auto* state = static_cast<ContainerState*>(arg);
 
-    if (chdir(state->rootfs.c_str()) != 0)
+    // --------------------------------------------------
+    // 1. Isolate mount namespace
+    // --------------------------------------------------
+    if (mount(nullptr, "/", nullptr, MS_REC | MS_PRIVATE, nullptr) != 0)
     {
-        LOG_ERROR("chdir failed");
+        LOG_ERROR("MS_PRIVATE failed: {}", strerror(errno));
         return 1;
     }
 
+    // --------------------------------------------------
+    // 2. Bind + pivot root
+    // --------------------------------------------------
+    if (mount(state->rootfs.c_str(), state->rootfs.c_str(), nullptr, MS_BIND | MS_REC, nullptr) !=
+        0)
+    {
+        LOG_ERROR("bind mount failed: {}", strerror(errno));
+        return 1;`
+    }
+
+    auto old_root = state->rootfs / ".oldroot";
+
+    if (mkdir(old_root.c_str(), 0755) != 0 && errno != EEXIST)
+    {
+        LOG_ERROR("mkdir oldroot failed: {}", strerror(errno));
+        return 1;
+    }
+
+    if (syscall(SYS_pivot_root, state->rootfs.c_str(), old_root.c_str()) != 0)
+    {
+        LOG_ERROR("pivot_root failed: {}", strerror(errno));
+        return 1;
+    }
+
+    chdir("/");
+
+    umount2("/.oldroot", MNT_DETACH);
+    rmdir("/.oldroot");
+
+    // ==================================================
+    // 3. CORE MOUNT POINTS
+    // ==================================================
+    mkdir("/proc", 0555);
+    mkdir("/sys", 0555);
+    mkdir("/dev", 0755);
+
+    if (mount("proc", "/proc", "proc", 0, nullptr) != 0)
+    {
+        LOG_ERROR("proc mount failed: {}", strerror(errno));
+        return 1;
+    }
+
+    if (mount("sysfs", "/sys", "sysfs", 0, nullptr) != 0)
+    {
+        LOG_ERROR("sysfs mount failed: {}", strerror(errno));
+        return 1;
+    }
+
+    if (mount("tmpfs", "/dev", "tmpfs", MS_NOSUID | MS_STRICTATIME, "mode=755") != 0)
+    {
+        LOG_ERROR("dev tmpfs failed: {}", strerror(errno));
+        return 1;
+    }
+
+    mkdir("/dev/pts", 0755);
+
+    if (mount("devpts", "/dev/pts", "devpts", 0, "newinstance,ptmxmode=666") != 0)
+    {
+        LOG_ERROR("devpts failed: {}", strerror(errno));
+        return 1;
+    }
+
+    // ==================================================
+    // 7. DEVICE NODES
+    // ==================================================
+    auto mk = [&](const char* path, mode_t mode, int maj, int min)
+    {
+        if (mknod(path, mode, makedev(maj, min)) != 0 && errno != EEXIST)
+        {
+            LOG_ERROR("mknod {} failed: {}", path, strerror(errno));
+        }
+    };
+
+    mk("/dev/null", S_IFCHR | 0666, 1, 3);
+    mk("/dev/zero", S_IFCHR | 0666, 1, 5);
+    mk("/dev/full", S_IFCHR | 0666, 1, 7);
+    mk("/dev/random", S_IFCHR | 0666, 1, 8);
+    mk("/dev/urandom", S_IFCHR | 0666, 1, 9);
+    mk("/dev/tty", S_IFCHR | 0666, 5, 0);
+
+    // ==================================================
+    // 8. EXEC
+    // ==================================================
     const char* argv[] = {state->command.c_str(), nullptr};
 
     execve(argv[0], const_cast<char* const*>(argv), nullptr);
 
-    LOG_ERROR("execve failed");
+    LOG_ERROR("execve failed: {}", strerror(errno));
     return 1;
 }
 
