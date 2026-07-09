@@ -75,7 +75,7 @@ int Container::ChildFunc(void* arg)
         0)
     {
         LOG_ERROR("bind mount failed: {}", strerror(errno));
-        return 1;`
+        return 1;
     }
 
     auto old_root = state->rootfs / ".oldroot";
