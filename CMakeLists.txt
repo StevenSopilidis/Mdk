@@ -1,22 +1,43 @@
 cmake_minimum_required(VERSION 3.10)
 
+project(Mdk)
+
 set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-project(Mdk)
-
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
-set(PROJECT_SOURCE_FILES
-    src/main.cpp
+# Shared include directories
+include_directories(
+    src
+    mdk/src
 )
 
-include_directories(src)
-add_executable(${PROJECT_NAME} ${PROJECT_SOURCE_FILES})
+# Build core library
+add_subdirectory(
+    mdk
+    "${CMAKE_CURRENT_BINARY_DIR}/mdk_build"
+)
 
-add_subdirectory(mdk "${CMAKE_CURRENT_BINARY_DIR}/mdk_build")
-include_directories(mdk/src)
+# CLI executable
+add_executable(
+    MdkCli
+    src/cli/main.cpp
+)
 
-target_link_libraries(${PROJECT_NAME}
+target_link_libraries(
+    MdkCli
+    MdkCore
+)
+
+
+# Daemon executable
+add_executable(
+    MdkDaemon
+    src/daemon/main.cpp
+)
+
+target_link_libraries(
+    MdkDaemon
     MdkCore
 )

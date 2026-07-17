@@ -12,18 +12,18 @@ using namespace mdk::utils;
 class App
 {
   public:
-    App(int argc, char** argv);
+    App();
     void Run();
+    void ProcessCommand(int argc, char** argv);
     void Stop();
 
   private:
-    void HandleHelp();
-    void HandleRunRaw();
+    void HandleHelp(ArgParser& argParser);
+    void HandleRunRaw(ArgParser& argParser);
 
     std::atomic<bool>      running_;
     std::thread            main_loop_thread_;
     core::ContainerManager container_manager_;
     Logger&                logger_;
-    ArgParser              arg_parser_;
 };
 } // namespace mdk::app

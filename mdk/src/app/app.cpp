@@ -4,13 +4,30 @@
 
 namespace mdk::app
 {
-App::App(int argc, char** argv) : logger_{Logger::GetInstance()}, arg_parser_(ArgParser(argc, argv))
-{
-}
+App::App() : logger_{Logger::GetInstance()} {}
 
 void App::Run()
 {
-    auto subcmd = arg_parser_.Expect(TokenType::Subcommand);
+    running_ = true;
+
+    main_loop_thread_ = std::thread(
+        [&]()
+        {
+            while (running_.load(std::memory_order_acquire))
+            {
+            }
+        });
+
+    main_loop_thread_.join();
+}
+
+void App::Stop() { running_.store(false, std::memory_order_acquire); }
+
+void App::ProcessCommand(int argc, char** argv)
+{
+    auto argParser = ArgParser(argc, argv);
+
+    auto subcmd = argParser.Expect(TokenType::Subcommand);
 
     if (!subcmd.has_value())
     {
@@ -21,31 +38,25 @@ void App::Run()
 
     if (subcmd->text == std::string_view("help"))
     {
-        HandleHelp();
+        HandleHelp(argParser);
     }
     else if (subcmd->text == std::string_view("run-raw"))
     {
-        HandleRunRaw();
-    }
-
-    while (running_.load(std::memory_order_acquire))
-    {
+        HandleRunRaw(argParser);
     }
 }
 
-void App::Stop() { running_.store(false, std::memory_order_acquire); }
-
-void App::HandleRunRaw()
+void App::HandleRunRaw(ArgParser& argParser)
 {
     // mdk run-raw <root-fs> <command>
-    auto rootfs = arg_parser_.Expect(TokenType::Value);
+    auto rootfs = argParser.Expect(TokenType::Value);
     if (rootfs == std::nullopt)
     {
         LOG_ERROR("Expecting root-fs value");
         return;
     }
 
-    auto command = arg_parser_.Expect(TokenType::Value);
+    auto command = argParser.Expect(TokenType::Value);
     if (command == std::nullopt)
     {
         LOG_ERROR("Expecting command value");
@@ -55,9 +66,9 @@ void App::HandleRunRaw()
     container_manager_.CreateContainer(std::string(rootfs->text), std::string(command->text));
 }
 
-void App::HandleHelp()
+void App::HandleHelp(ArgParser& argParser)
 {
-    if (arg_parser_.Peek(0) != std::nullopt)
+    if (argParser.Peek(0) != std::nullopt)
     {
         LOG_ERROR("Invalid arguments passed to help");
         return;
