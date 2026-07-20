@@ -1,8 +1,8 @@
 #include "app/app.h"
 
-int main()
-{
-    mdk::app::App app;
+using mdk::app::App;
 
-    app.Run();
+int main() 
+{ 
+    App::GetInstance().Run(); 
 }

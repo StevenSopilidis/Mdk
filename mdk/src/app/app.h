@@ -12,14 +12,18 @@ using namespace mdk::utils;
 class App
 {
   public:
-    App();
     void Run();
     void ProcessCommand(int argc, char** argv);
     void Stop();
 
+    static App& GetInstance();
+
   private:
+    App();
     void HandleHelp(ArgParser& argParser);
     void HandleRunRaw(ArgParser& argParser);
+
+    static void DefaultSignalHandler(int);
 
     std::atomic<bool>      running_;
     std::thread            main_loop_thread_;

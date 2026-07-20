@@ -1,14 +1,28 @@
 #include "app.h"
 
+#include "core/signal_handler.h"
+
+#include <csignal>
 #include <iostream>
 
 namespace mdk::app
 {
 App::App() : logger_{Logger::GetInstance()} {}
 
+App& App::GetInstance()
+{
+    static App app;
+    return app;
+}
+
 void App::Run()
 {
+    core::InstallSignalHandler<SIGTERM>(DefaultSignalHandler);
+    core::InstallSignalHandler<SIGINT>(DefaultSignalHandler);
+
     running_ = true;
+
+    LOG_INFO("Started MDK DEAMON");
 
     main_loop_thread_ = std::thread(
         [&]()
@@ -75,6 +89,12 @@ void App::HandleHelp(ArgParser& argParser)
     }
 
     LOG_INFO("MDK HELP....");
+}
+
+void App::DefaultSignalHandler(int sig)
+{
+    LOG_INFO("Received signal {}", sig);
+    App::GetInstance().running_.store(false, std::memory_order_release);
 }
 
 } // namespace mdk::app
