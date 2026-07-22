@@ -7,6 +7,7 @@ set(PROJECT_SOURCE_FILES
     src/app/app.cpp
     src/core/container.cpp
     src/core/container_manager.cpp
+    src/server/server.cpp
 )
 
 # Create library

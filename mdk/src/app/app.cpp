@@ -1,13 +1,15 @@
 #include "app.h"
 
 #include "core/signal_handler.h"
+#include "server/server.h"
 
 #include <csignal>
 #include <iostream>
 
+using namespace mdk::server;
+
 namespace mdk::app
 {
-App::App() : logger_{Logger::GetInstance()} {}
 
 App& App::GetInstance()
 {
@@ -24,15 +26,13 @@ void App::Run()
 
     LOG_INFO("Started MDK DEAMON");
 
-    main_loop_thread_ = std::thread(
+    main_loop_thread_ = std::jthread(
         [&]()
         {
             while (running_.load(std::memory_order_acquire))
             {
             }
         });
-
-    main_loop_thread_.join();
 }
 
 void App::Stop() { running_.store(false, std::memory_order_acquire); }

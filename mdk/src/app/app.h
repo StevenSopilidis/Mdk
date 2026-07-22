@@ -19,15 +19,14 @@ class App
     static App& GetInstance();
 
   private:
-    App();
+    App() = default;
     void HandleHelp(ArgParser& argParser);
     void HandleRunRaw(ArgParser& argParser);
 
     static void DefaultSignalHandler(int);
 
     std::atomic<bool>      running_;
-    std::thread            main_loop_thread_;
+    std::jthread           main_loop_thread_;
     core::ContainerManager container_manager_;
-    Logger&                logger_;
 };
 } // namespace mdk::app
