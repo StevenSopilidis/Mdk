@@ -1,5 +1,8 @@
 #include "server.h"
 
+#include "utils/arg_parser.h"
+
+#include <iostream>
 #include <stdexcept>
 #include <sys/socket.h>
 #include <sys/un.h>
@@ -71,10 +74,11 @@ void Server::Run()
                 break;
             }
 
-            LOG_INFO("Received: {}\n", std::string_view(buffer.data(), bytes));
+            auto data = std::string_view(buffer.data(), bytes);
 
-            const char* reply = "OK";
-            write(client_fd, reply, strlen(reply));
+            LOG_INFO("Received request: {}\n", data);
+
+            auto parser = ArgParser(data);
 
             memset(buffer.data(), 0, sizeof(buffer));
         }

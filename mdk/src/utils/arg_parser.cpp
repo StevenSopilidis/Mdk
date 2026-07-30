@@ -1,8 +1,39 @@
 #include "arg_parser.h"
 
+#include "utils/logger.h"
+
+#include <string_view>
+#include <vector>
+
 namespace mdk::utils
 {
 ArgParser::ArgParser(int argc, char** argv) { Tokenize(argc, argv); }
+
+ArgParser::ArgParser(std::string_view command)
+{
+    // parse received data into arc, argv equivelant
+    std::istringstream iss((std::string(command)));
+
+    std::vector<std::string> args;
+    std::string              token;
+
+    while (iss >> token)
+    {
+        args.push_back(std::move(token));
+    }
+
+    std::vector<char*> argv;
+    argv.reserve(args.size());
+
+    for (auto& arg : args)
+    {
+        argv.push_back(arg.data());
+    }
+
+    int argc = static_cast<int>(argv.size());
+
+    Tokenize(argc, argv.data());
+}
 
 void ArgParser::Tokenize(int argc, char** argv)
 {
