@@ -1,5 +1,7 @@
 #include "container_manager.h"
 
+#include "utils/logger.h"
+
 #include <cerrno>
 #include <mutex>
 #include <sys/wait.h>
@@ -31,6 +33,7 @@ bool ContainerManager::CreateContainer(std::string_view rootfs, const std::strin
 
     if (container == nullptr)
     {
+        LOG_ERROR("Container creation failed\n");
         return false;
     }
 
@@ -38,6 +41,9 @@ bool ContainerManager::CreateContainer(std::string_view rootfs, const std::strin
         std::unique_lock lock(mtx_);
         containers_[container->get_pid()] = container;
     }
+
+    LOG_INFO("Started container with pid: {} and id: {}\n", container->get_pid(),
+             container->get_id());
 
     return true;
 }

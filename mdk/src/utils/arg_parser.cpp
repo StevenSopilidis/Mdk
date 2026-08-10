@@ -7,8 +7,6 @@
 
 namespace mdk::utils
 {
-ArgParser::ArgParser(int argc, char** argv) { Tokenize(argc, argv); }
-
 ArgParser::ArgParser(std::string_view command)
 {
     // parse received data into arc, argv equivelant
@@ -39,7 +37,7 @@ void ArgParser::Tokenize(int argc, char** argv)
 {
     auto seen_subcmd{false};
 
-    for (std::size_t i{1}; i < argc; i++)
+    for (std::size_t i{0}; i < argc; i++)
     {
         std::string_view s{argv[i]};
 

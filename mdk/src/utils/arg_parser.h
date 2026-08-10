@@ -25,7 +25,6 @@ struct Token
 class ArgParser
 {
   public:
-    ArgParser(int argc, char** argv);
     ArgParser(std::string_view command);
 
     [[nodiscard]] std::optional<Token> Peek(std::size_t offset) const;

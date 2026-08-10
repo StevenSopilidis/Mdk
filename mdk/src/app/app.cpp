@@ -22,7 +22,7 @@ void App::Run()
     core::InstallSignalHandler<SIGTERM>(DefaultSignalHandler);
     core::InstallSignalHandler<SIGINT>(DefaultSignalHandler);
 
-    running_ = true;
+    running_.store(true, std::memory_order_release);
 
     LOG_INFO("Started MDK DEAMON");
 
@@ -37,18 +37,14 @@ void App::Run()
 
 void App::Stop() { running_.store(false, std::memory_order_acquire); }
 
-void App::ProcessCommand(int argc, char** argv)
+void App::ProcessCommand(ArgParser& argParser)
 {
-    auto argParser = ArgParser(argc, argv);
-
     auto subcmd = argParser.Expect(TokenType::Subcommand);
 
     if (!subcmd.has_value())
     {
         LOG_ERROR("Expected subcmd as first arguemnt");
     }
-
-    running_.store(true, std::memory_order_release);
 
     if (subcmd->text == std::string_view("help"))
     {

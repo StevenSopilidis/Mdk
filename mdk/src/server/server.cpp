@@ -1,5 +1,6 @@
 #include "server.h"
 
+#include "app/app.h"
 #include "utils/arg_parser.h"
 
 #include <iostream>
@@ -80,8 +81,12 @@ void Server::Run()
 
             auto parser = ArgParser(data);
 
+            app::App::GetInstance().ProcessCommand(parser);
+
+            LOG_INFO("Processed request2\n", data);
+
             memset(buffer.data(), 0, sizeof(buffer));
-        }
+        }   
 
         close(client_fd);
     }

@@ -13,7 +13,7 @@ class App
 {
   public:
     void Run();
-    void ProcessCommand(int argc, char** argv);
+    void ProcessCommand(ArgParser& argParser);
     void Stop();
 
     static App& GetInstance();
