@@ -33,12 +33,15 @@ class ContainerManager
     void                                 LaunchReapThread();
     void                                 Stop();
 
+    [[nodiscard]] const std::unordered_map<std::uint64_t, std::unique_ptr<Container>>&
+    GetContainers() const;
+
   private:
-    std::shared_mutex                                          mtx_;
-    std::atomic<bool>                                          running_{true};
-    std::thread                                                reaper_thread_;
+    std::shared_mutex                                             mtx_;
+    std::atomic<bool>                                             running_{true};
+    std::thread                                                   reaper_thread_;
     std::unordered_map<std::uint64_t, std::unique_ptr<Container>> containers_;
-    std::unordered_map<pid_t, std::uint64_t>                   pid_to_id_;
+    std::unordered_map<pid_t, std::uint64_t>                      pid_to_id_;
 };
 
 } // namespace mdk::core

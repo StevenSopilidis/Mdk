@@ -34,8 +34,8 @@ ContainerManager::~ContainerManager()
     }
 }
 
-std::optional<CreateContainerResult> ContainerManager::CreateContainer(
-    std::string_view rootfs, const std::vector<std::string>& argv)
+std::optional<CreateContainerResult>
+ContainerManager::CreateContainer(std::string_view rootfs, const std::vector<std::string>& argv)
 {
     auto container = Container::Create(std::filesystem::path{rootfs}, argv, {});
 
@@ -49,8 +49,8 @@ std::optional<CreateContainerResult> ContainerManager::CreateContainer(
 
     {
         std::unique_lock lock(mtx_);
-        pid_to_id_[container->get_pid()]     = container->get_id();
-        containers_[container->get_id()]     = std::move(container);
+        pid_to_id_[container->get_pid()] = container->get_id();
+        containers_[container->get_id()] = std::move(container);
     }
 
     LOG_INFO("Started container with pid: {} and id: {}", result.pid, result.id);
@@ -109,6 +109,12 @@ void ContainerManager::LaunchReapThread()
                 }
             }
         });
+}
+
+const std::unordered_map<std::uint64_t, std::unique_ptr<Container>>&
+ContainerManager::GetContainers() const
+{
+    return containers_;
 }
 
 } // namespace mdk::core

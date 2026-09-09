@@ -72,6 +72,10 @@ std::string App::ProcessCommand(ArgParser& argParser)
     {
         return HandleRunRaw(argParser);
     }
+    if (subcmd->text == "list")
+    {
+        return HandleList(argParser);
+    }
 
     LOG_ERROR("Unknown subcommand {}", subcmd->text);
     return ErrJson("Unknown subcommand: " + subcmd->text).dump();
@@ -109,6 +113,28 @@ std::string App::HandleRunRaw(ArgParser& argParser)
     }
 
     return OkJson({{"id", created->id}, {"pid", created->pid}, {"command", argv}}).dump();
+}
+
+std::string App::HandleList(ArgParser& argParser)
+{
+    if (argParser.Peek(0) != std::nullopt)
+    {
+        LOG_ERROR("Invalid arguments passed to list");
+        return ErrJson("Invalid arguments passed to list").dump();
+    }
+
+    const auto containers =
+        container_manager_.GetContainers() | std::views::values |
+        std::views::transform(
+            [](const auto& container)
+            {
+                return "id=" + std::to_string(container->get_id()) +
+                       " pid=" + std::to_string(container->get_pid()) + " process_state=" +
+                       std::to_string(static_cast<int>(container->process_state()));
+            }) |
+        std::ranges::to<std::vector<std::string>>();
+
+    return OkJson({{"containers", containers}}).dump();
 }
 
 std::string App::HandleHelp(ArgParser& argParser)

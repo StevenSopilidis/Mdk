@@ -26,6 +26,7 @@ class App
     App() = default;
 
     std::string HandleHelp(ArgParser& argParser);
+    std::string HandleList(ArgParser& argParser);
     std::string HandleRunRaw(ArgParser& argParser);
 
     static void DefaultSignalHandler(int);
