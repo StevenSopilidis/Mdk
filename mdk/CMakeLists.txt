@@ -7,8 +7,11 @@ set(PROJECT_SOURCE_FILES
     src/app/app.cpp
     src/core/container.cpp
     src/core/container_manager.cpp
+    src/server/protocol.cpp
     src/server/server.cpp
 )
+
+find_package(Threads REQUIRED)
 
 # Create library
 add_library(${PROJECT_NAME} ${PROJECT_SOURCE_FILES})
@@ -18,3 +21,5 @@ target_include_directories(MdkCore
     PUBLIC
         ${CMAKE_CURRENT_SOURCE_DIR}/src
 )
+
+target_link_libraries(MdkCore PUBLIC Threads::Threads)

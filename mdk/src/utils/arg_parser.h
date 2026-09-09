@@ -2,6 +2,7 @@
 
 #include <cstdint>
 #include <optional>
+#include <string>
 #include <string_view>
 #include <vector>
 
@@ -18,14 +19,15 @@ enum class TokenType : std::uint8_t
 
 struct Token
 {
-    TokenType        type;
-    std::string_view text;
+    TokenType   type;
+    std::string text;
 };
 
 class ArgParser
 {
   public:
-    ArgParser(std::string_view command);
+    explicit ArgParser(std::string_view command);
+    explicit ArgParser(std::vector<std::string> args);
 
     [[nodiscard]] std::optional<Token> Peek(std::size_t offset) const;
     [[nodiscard]] std::optional<Token> Next();
@@ -34,10 +36,10 @@ class ArgParser
     [[nodiscard]] bool                 Match(TokenType type);
 
   private:
-    void Tokenize(int argc, char** argv);
+    void Tokenize(const std::vector<std::string>& args);
 
     std::vector<Token> tokens_;
-    size_t             current_{0};
+    std::size_t        current_{0};
 };
 
 } // namespace mdk::utils

@@ -2,6 +2,7 @@
 
 #include <cstdint>
 #include <cstdio>
+#include <cstdlib>
 #include <filesystem>
 #include <format>
 #include <mutex>
@@ -117,6 +118,10 @@ class Logger
                                                                            fmt, ##__VA_ARGS__)
 
 #define LOG_FATAL(fmt, ...)                                                                        \
-    ::mdk::utils::Logger::GetInstance().Log<::mdk::utils::LogLevel::Fatal>(__FILE__, __LINE__,     \
-                                                                           fmt, ##__VA_ARGS__);    \
-    exit(-1);
+    do                                                                                             \
+    {                                                                                              \
+        ::mdk::utils::Logger::GetInstance().Log<::mdk::utils::LogLevel::Fatal>(                    \
+            __FILE__, __LINE__, fmt, ##__VA_ARGS__);                                               \
+        ::exit(-1);                                                                                \
+    } while (0)
+

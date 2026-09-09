@@ -2,12 +2,11 @@
 
 #include "utils/logger.h"
 
+#include <atomic>
 #include <string_view>
 
 namespace mdk::server
 {
-
-using namespace mdk::utils;
 
 class Server
 {
@@ -17,12 +16,14 @@ class Server
 
     Server(const Server&)            = delete;
     Server& operator=(const Server&) = delete;
-    Server(Server&&)                 = default;
-    Server& operator=(Server&&)      = default;
-    void    Run();
+    Server(Server&&)                 = delete;
+    Server& operator=(Server&&)      = delete;
+
+    void Run(std::atomic<bool>& running);
+    void Shutdown();
 
   private:
-    int                               server_fd_;
-    static constexpr std::string_view kServerPath{"/tmp/mdk_daemon.sock"};
+    std::atomic<int> server_fd_{-1};
 };
+
 } // namespace mdk::server

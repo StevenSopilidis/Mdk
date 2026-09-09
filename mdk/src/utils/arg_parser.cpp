@@ -1,17 +1,16 @@
 #include "arg_parser.h"
 
-#include "utils/logger.h"
-
+#include <sstream>
 #include <string_view>
+#include <utility>
 #include <vector>
 
 namespace mdk::utils
 {
+
 ArgParser::ArgParser(std::string_view command)
 {
-    // parse received data into arc, argv equivelant
-    std::istringstream iss((std::string(command)));
-
+    std::istringstream iss{std::string(command)};
     std::vector<std::string> args;
     std::string              token;
 
@@ -20,43 +19,35 @@ ArgParser::ArgParser(std::string_view command)
         args.push_back(std::move(token));
     }
 
-    std::vector<char*> argv;
-    argv.reserve(args.size());
-
-    for (auto& arg : args)
-    {
-        argv.push_back(arg.data());
-    }
-
-    int argc = static_cast<int>(argv.size());
-
-    Tokenize(argc, argv.data());
+    Tokenize(args);
 }
 
-void ArgParser::Tokenize(int argc, char** argv)
+ArgParser::ArgParser(std::vector<std::string> args) { Tokenize(args); }
+
+void ArgParser::Tokenize(const std::vector<std::string>& args)
 {
     auto seen_subcmd{false};
 
-    for (std::size_t i{0}; i < argc; i++)
+    for (const auto& arg : args)
     {
-        std::string_view s{argv[i]};
+        std::string_view s{arg};
 
         if (s.starts_with("--"))
         {
-            tokens_.push_back({TokenType::Option, s.substr(2)});
+            tokens_.push_back({TokenType::Option, std::string(s.substr(2))});
         }
-        else if (s.starts_with("-"))
+        else if (s.starts_with("-") && s.size() > 1)
         {
-            tokens_.push_back({TokenType::Flag, s.substr(1)});
+            tokens_.push_back({TokenType::Flag, std::string(s.substr(1))});
         }
         else if (!seen_subcmd)
         {
-            tokens_.push_back({TokenType::Subcommand, s});
+            tokens_.push_back({TokenType::Subcommand, arg});
             seen_subcmd = true;
         }
         else
         {
-            tokens_.push_back({TokenType::Value, s});
+            tokens_.push_back({TokenType::Value, arg});
         }
     }
 }
@@ -93,12 +84,13 @@ std::optional<Token> ArgParser::Expect(TokenType type)
 
 bool ArgParser::Match(TokenType type)
 {
-    if (current_ == tokens_.size())
+    if (current_ == tokens_.size() || tokens_[current_].type != type)
     {
         return false;
     }
 
-    return tokens_[current_++].type == type;
+    ++current_;
+    return true;
 }
 
 } // namespace mdk::utils
